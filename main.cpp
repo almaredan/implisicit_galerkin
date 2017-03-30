@@ -39,8 +39,8 @@ int main(int argc, char** argv) {
     double x1 = 0;
     double x2 = 1;
     double vel_l = 1;                                                           //Значение f(0,t)
-    int N_u = 100;                                                               //Количество точек для грубой сетки
-    int N_v = 200;
+    int N_u = 50;                                                               //Количество точек для грубой сетки
+    int N_v = 100;
 //    int N_w = 200;
     vector<double> mesh_u, mesh_v; //, mesh_w;
     vector<double> u, v;//, w;
@@ -51,12 +51,12 @@ int main(int argc, char** argv) {
     scheme(u, mesh_u, x1, x2, vel_l);
     cout << "Первая схема отработала" << endl;
     double err_u = 0;
-    double x_u = 0;
+//    double x_u = 0;
     for (int i = 0; i <  N_u; i++) {
         double err_tmp = abs(u[i] - exp(mesh_u[i]));               //Не забудь заменить здесь и ниже
         err_u = (err_u > err_tmp) ? err_u : err_tmp;                            //константу рядом с f_x(), если она изменится
-        x_u = (err_u > err_tmp) ? x_u : mesh_u[i];
-        cout << mesh_u[i] << " " << u[i] << " " << exp(mesh_u[i]) << endl;
+//        x_u = (err_u > err_tmp) ? x_u : mesh_u[i];
+        cout << mesh_u[i] << " " << u[i] << endl;
     } cout << endl;
     
     
@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
 //    } cout << endl;
     
     double p = abs( logf( err_u / err_v ) / logf( 0.5 ) );
-    cout << "Errors: " << err_u << " " << x_u << " " << err_v << endl;
+    cout << "Errors: " << err_u << " " << err_v << endl;
     cout << "Порядок точности: " << p << endl;
     
     return 0;
@@ -137,10 +137,10 @@ Vector3D step(const Vector3D & vel, double tau, double h, double x0,
     Vector3D diffVel1 (eps, .0, .0);                                            //Отклонения скоростей
     Vector3D diffVel2 (.0, eps, .0);                                            //для поиска производных
     
-    real R11 = (R(vel).x - R(vel + diffVel1).x)/eps;                            //первая строка по первой компоненте
-    real R12 = (R(vel).x - R(vel + diffVel2).x)/eps;                            //первая строка по второй компоненте
-    real R21 = (R(vel).y - R(vel + diffVel1).y)/eps;                            //вторая --//-- по первой
-    real R22 = (R(vel).y - R(vel + diffVel2).y)/eps;                            //вторая --//-- по второй
+    real R11 = (tempVec.x - R(vel + diffVel1).x)/eps;                            //первая строка по первой компоненте
+    real R12 = (tempVec.x - R(vel + diffVel2).x)/eps;                            //первая строка по второй компоненте
+    real R21 = (tempVec.y - R(vel + diffVel1).y)/eps;                            //вторая --//-- по первой
+    real R22 = (tempVec.y - R(vel + diffVel2).y)/eps;                            //вторая --//-- по второй
     
     real a = h/tau + R11;
     real b = R12;
@@ -163,8 +163,9 @@ Vector3D step(const Vector3D & vel, double tau, double h, double x0,
 void scheme(vector<double>& u, vector<double>& mesh, double x1,
         double x2, double vel_l) {
     vector< Vector3D > vel;
+    double Cu = 0.3;
     double h = (x2 - x1)/u.size();
-    double tau = h*h*2;
+    double tau = h*Cu;
     for (int i = 0; i < u.size(); i++) mesh.push_back(x1 + i*h + h/2);
     for ( double value : u) {
         vel.push_back( Vector3D ( value, .0, .0 ) );
@@ -185,7 +186,6 @@ void scheme(vector<double>& u, vector<double>& mesh, double x1,
             vel.at(i) = velTmp.at(i);
         }
     }
-    cout << vel.at(0).y << endl;
     for (int i = 0; i < u.size(); i++) {
         u.at(i) = vel.at(i)[0];
     }
