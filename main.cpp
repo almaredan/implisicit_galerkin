@@ -38,8 +38,8 @@ double f_x(double x);
 int main(int argc, char** argv) {
     double x1 = 0;
     double x2 = 1;
-    double vel_l = 3;                                                           //Значение f(0,t)
-    int N_u = 50;                                                               //Количество точек для грубой сетки
+    double vel_l = 1;                                                           //Значение f(0,t)
+    int N_u = 100;                                                               //Количество точек для грубой сетки
     int N_v = 200;
 //    int N_w = 200;
     vector<double> mesh_u, mesh_v; //, mesh_w;
@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
     double err_u = 0;
     double x_u = 0;
     for (int i = 0; i <  N_u; i++) {
-        double err_tmp = abs(u[i] - pow(mesh_u[i], 4)/4 - vel_l);               //Не забудь заменить здесь и ниже
+        double err_tmp = abs(u[i] - exp(mesh_u[i]));               //Не забудь заменить здесь и ниже
         err_u = (err_u > err_tmp) ? err_u : err_tmp;                            //константу рядом с f_x(), если она изменится
         x_u = (err_u > err_tmp) ? x_u : mesh_u[i];
         cout << mesh_u[i] << " " << u[i] << " " << exp(mesh_u[i]) << endl;
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
     cout << "Вторая схема отработала" << endl;
     double err_v = 0;
     for (int i = 0; i <  N_v; i++) {
-        double err_tmp = abs(v[i]  - pow(mesh_v[i], 4)/4 - vel_l);            //Не забудь заменить здесь и ниже
+        double err_tmp = abs(v[i]  - exp(mesh_v[i]));            //Не забудь заменить здесь и ниже
         err_v = (err_v > err_tmp) ? err_v : err_tmp;                    //константу рядом с f_x(), если она изменится
         cout << mesh_v[i] << " " << v[i] << endl;
     } cout << endl;
@@ -93,7 +93,7 @@ double integrate(std::function< double (double y) > f, double x0, double h) {
 }
 
 double f_x(double x) {
-    return x*x*x;
+    return exp(x);
 }
 
 Vector3D discrepancy(const Vector3D & vel, double & uLeft,
